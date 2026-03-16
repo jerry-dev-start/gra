@@ -25,6 +25,5 @@ func Setup(r *gin.Engine, sysH *system.Handlers, bizH *business.Handlers) {
 
 // registerPublic 注册公开路由
 func registerPublic(pub *gin.RouterGroup, h *system.Handlers) {
-	h.User.RegisterPublicRoutes(pub)
-	// 后续扩展：h.Captcha.RegisterPublicRoutes(pub)
+	h.Auth.RegisterPublicRoutes(pub)
 }

@@ -31,16 +31,6 @@ func (User) TableName() string { return "sys_user" }
 
 // DTO
 
-type LoginReq struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-}
-
-type LoginResp struct {
-	Token    string `json:"token"`
-	ExpireAt int64  `json:"expire_at"`
-}
-
 type CreateReq struct {
 	Username string `json:"username" binding:"required,min=3,max=64"`
 	Password string `json:"password" binding:"required,min=6"`

@@ -16,20 +16,6 @@ func NewHandler(svc *Service) *Handler {
 	return &Handler{svc: svc}
 }
 
-func (h *Handler) Login(c *gin.Context) {
-	var req LoginReq
-	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Fail(c, 400, "参数错误: "+err.Error())
-		return
-	}
-	resp, err := h.svc.Login(&req)
-	if err != nil {
-		response.Fail(c, 401, err.Error())
-		return
-	}
-	response.OK(c, resp)
-}
-
 func (h *Handler) Create(c *gin.Context) {
 	var req CreateReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -100,11 +86,6 @@ func (h *Handler) List(c *gin.Context) {
 		return
 	}
 	response.OKPage(c, users, total, req.Page, req.Size)
-}
-
-// RegisterPublicRoutes 注册公开路由（无需认证）
-func (h *Handler) RegisterPublicRoutes(r *gin.RouterGroup) {
-	r.POST("/login", h.Login)
 }
 
 // RegisterRoutes 注册需认证路由

@@ -2,13 +2,8 @@ package user
 
 import (
 	"errors"
-	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
-
-	"gra/internal/middleware"
-	"gra/pkg/config"
 )
 
 type Service struct {
@@ -17,36 +12,6 @@ type Service struct {
 
 func NewService(repo *Repository) *Service {
 	return &Service{repo: repo}
-}
-
-func (s *Service) Login(req *LoginReq) (*LoginResp, error) {
-	u, err := s.repo.GetByUsername(req.Username)
-	if err != nil {
-		return nil, errors.New("用户名或密码错误")
-	}
-	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(req.Password)); err != nil {
-		return nil, errors.New("用户名或密码错误")
-	}
-	if u.Status != 1 {
-		return nil, errors.New("账号已禁用")
-	}
-
-	expire := time.Duration(config.Cfg.JWT.Expire) * time.Second
-	expireAt := time.Now().Add(expire)
-
-	claims := &middleware.Claims{
-		UserID:   u.ID,
-		Username: u.Username,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expireAt),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-		},
-	}
-	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(config.Cfg.JWT.Secret))
-	if err != nil {
-		return nil, errors.New("生成Token失败")
-	}
-	return &LoginResp{Token: token, ExpireAt: expireAt.Unix()}, nil
 }
 
 func (s *Service) Create(req *CreateReq) error {
