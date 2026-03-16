@@ -1,33 +1,25 @@
 package user
 
 import (
+	"gra/internal/public"
 	"time"
-
-	"gorm.io/gorm"
 )
-
-// BaseModel 公共字段
-type BaseModel struct {
-	ID        uint           `json:"id" gorm:"primaryKey"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
-}
 
 // User 用户模型
 type User struct {
-	BaseModel
-	Username string `json:"username" gorm:"size:64;uniqueIndex;not null"`
-	Password string `json:"-" gorm:"size:128;not null"`
-	Nickname string `json:"nickname" gorm:"size:64"`
-	Avatar   string `json:"avatar" gorm:"size:255"`
-	Email    string `json:"email" gorm:"size:128"`
-	Phone    string `json:"phone" gorm:"size:20"`
-	Status   int8   `json:"status" gorm:"default:1;comment:1-启用 0-禁用"`
-	RoleID   uint   `json:"role_id" gorm:"index"`
+	public.BaseModel
+	Username      string    `json:"username" gorm:"size:64;uniqueIndex;not null"`
+	Password      string    `json:"-" gorm:"size:128;not null"`
+	Nickname      string    `json:"nickname" gorm:"size:64"`
+	Avatar        string    `json:"avatar" gorm:"size:255"`
+	Email         string    `json:"email" gorm:"size:128"`
+	Phone         string    `json:"phoneNumber" gorm:"size:20"`
+	Status        int8      `json:"status" gorm:"default:1;comment:1-启用 0-禁用"`
+	RoleID        int64     `json:"role_id,string" gorm:"index"`
+	LastLoginDate time.Time `json:"lastLoginDate" gorm:"comment:最后一次登录日期"`
 }
 
-func (User) TableName() string { return "sys_user" }
+func (User) TableName() string { return "users" }
 
 // DTO
 
@@ -37,7 +29,7 @@ type CreateReq struct {
 	Nickname string `json:"nickname"`
 	Email    string `json:"email" binding:"omitempty,email"`
 	Phone    string `json:"phone"`
-	RoleID   uint   `json:"role_id"`
+	RoleID   int64  `json:"role_id,string"`
 }
 
 type UpdateReq struct {
@@ -45,7 +37,7 @@ type UpdateReq struct {
 	Email    string `json:"email" binding:"omitempty,email"`
 	Phone    string `json:"phone"`
 	Status   *int8  `json:"status"`
-	RoleID   uint   `json:"role_id"`
+	RoleID   int64  `json:"role_id,string"`
 }
 
 type PageReq struct {
@@ -55,4 +47,15 @@ type PageReq struct {
 
 func (p *PageReq) Offset() int {
 	return (p.Page - 1) * p.Size
+}
+
+// 获取用户信息返回的结构体
+type UserInfoRes struct {
+	UserInfo UserInfoResponse `json:"userInfo"`
+}
+
+type UserInfoResponse struct {
+	ID       int64  `json:"id,string"`
+	Nickname string `json:"nickname"`
+	Avatar   string `json:"avatar"`
 }

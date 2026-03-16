@@ -11,7 +11,7 @@ import (
 func Setup(r *gin.Engine, sysH *system.Handlers, bizH *business.Handlers) {
 	r.Use(middleware.Cors())
 
-	api := r.Group("/api")
+	api := r.Group("/v1")
 
 	// 公开接口
 	pub := api.Group("")

@@ -18,7 +18,7 @@ type UserQuerier interface {
 
 // UserInfo auth 模块需要的用户信息（不依赖 user.User 具体类型）
 type UserInfo struct {
-	ID       uint
+	ID       int64
 	Username string
 	Password string
 	Status   int8

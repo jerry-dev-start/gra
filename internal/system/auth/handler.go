@@ -41,5 +41,5 @@ func (h *Handler) Login(c *gin.Context) {
 
 // RegisterPublicRoutes 注册公开路由（无需认证）
 func (h *Handler) RegisterPublicRoutes(r *gin.RouterGroup) {
-	r.POST("/login", h.Login)
+	r.POST("/auth/login", h.Login)
 }

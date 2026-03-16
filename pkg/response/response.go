@@ -20,6 +20,10 @@ func OKMsg(c *gin.Context, msg string) {
 	c.JSON(http.StatusOK, Response{Code: 0, Message: msg})
 }
 
+func FailMsg(c *gin.Context, msg string) {
+	c.JSON(http.StatusOK, Response{Code: 500, Message: msg})
+}
+
 func Fail(c *gin.Context, code int, msg string) {
 	c.JSON(http.StatusOK, Response{Code: code, Message: msg})
 }

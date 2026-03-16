@@ -7,10 +7,11 @@ import (
 )
 
 type Config struct {
-	Server   ServerConfig   `mapstructure:"server"`
-	Database DatabaseConfig `mapstructure:"database"`
-	JWT      JWTConfig      `mapstructure:"jwt"`
-	Log      LogConfig      `mapstructure:"log"`
+	Server    ServerConfig    `mapstructure:"server"`
+	Database  DatabaseConfig  `mapstructure:"database"`
+	JWT       JWTConfig       `mapstructure:"jwt"`
+	Log       LogConfig       `mapstructure:"log"`
+	Snowflake SnowflakeConfig `mapstructure:"snowflake"`
 }
 
 type ServerConfig struct {
@@ -38,6 +39,10 @@ type JWTConfig struct {
 type LogConfig struct {
 	Level  string `mapstructure:"level"`
 	Format string `mapstructure:"format"`
+}
+
+type SnowflakeConfig struct {
+	MachineID int64 `mapstructure:"machine_id"`
 }
 
 var Cfg *Config

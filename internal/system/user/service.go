@@ -31,11 +31,11 @@ func (s *Service) Create(req *CreateReq) error {
 	return s.repo.Create(u)
 }
 
-func (s *Service) GetByID(id uint) (*User, error) {
+func (s *Service) GetByID(id int64) (*User, error) {
 	return s.repo.GetByID(id)
 }
 
-func (s *Service) Update(id uint, req *UpdateReq) error {
+func (s *Service) Update(id int64, req *UpdateReq) error {
 	updates := make(map[string]interface{})
 	if req.Nickname != "" {
 		updates["nickname"] = req.Nickname
@@ -58,7 +58,7 @@ func (s *Service) Update(id uint, req *UpdateReq) error {
 	return s.repo.Update(id, updates)
 }
 
-func (s *Service) Delete(id uint) error {
+func (s *Service) Delete(id int64) error {
 	return s.repo.Delete(id)
 }
 

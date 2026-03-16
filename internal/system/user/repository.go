@@ -16,7 +16,7 @@ func (r *Repository) Create(u *User) error {
 	return r.db.Create(u).Error
 }
 
-func (r *Repository) GetByID(id uint) (*User, error) {
+func (r *Repository) GetByID(id int64) (*User, error) {
 	var u User
 	err := r.db.First(&u, id).Error
 	return &u, err
@@ -28,11 +28,11 @@ func (r *Repository) GetByUsername(username string) (*User, error) {
 	return &u, err
 }
 
-func (r *Repository) Update(id uint, updates map[string]interface{}) error {
+func (r *Repository) Update(id int64, updates map[string]interface{}) error {
 	return r.db.Model(&User{}).Where("id = ?", id).Updates(updates).Error
 }
 
-func (r *Repository) Delete(id uint) error {
+func (r *Repository) Delete(id int64) error {
 	return r.db.Delete(&User{}, id).Error
 }
 

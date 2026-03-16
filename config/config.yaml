@@ -20,3 +20,6 @@ jwt:
 log:
   level: info
   format: console  # console / json
+
+snowflake:
+  machine_id: 1  # 机器ID，集群部署时每个节点不同，范围 0-1023

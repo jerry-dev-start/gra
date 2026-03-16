@@ -9,9 +9,11 @@ import (
 	"gra/internal/business"
 	"gra/internal/router"
 	"gra/internal/system"
+	"gra/internal/system/menus"
 	"gra/internal/system/user"
 	"gra/pkg/config"
 	"gra/pkg/database"
+	"gra/pkg/id"
 	"gra/pkg/logger"
 )
 
@@ -25,22 +27,27 @@ func main() {
 	// 2. 初始化日志
 	logger.Init(&cfg.Log)
 
-	// 3. 初始化数据库
+	// 3. 初始化雪花算法
+	if err := id.Init(cfg.Snowflake.MachineID); err != nil {
+		log.Fatalf("init snowflake: %v", err)
+	}
+
+	// 4. 初始化数据库
 	db, err := database.Init(&cfg.Database)
 	if err != nil {
 		log.Fatalf("init database: %v", err)
 	}
 
-	// 4. 自动迁移
-	if err := db.AutoMigrate(&user.User{}); err != nil {
+	// 5. 自动迁移
+	if err := db.AutoMigrate(&user.User{}, &menus.Menus{}); err != nil {
 		log.Fatalf("auto migrate: %v", err)
 	}
 
-	// 5. 依赖注入 — 三行搞定，不管模块多少
+	// 6. 依赖注入 — 三行搞定，不管模块多少
 	sysHandlers, sysSvc := system.Init(db)
 	bizHandlers := business.Init(db, sysSvc)
 
-	// 6. 启动 Gin（用 zap 替代默认日志）
+	// 7. 启动 Gin（用 zap 替代默认日志）
 	gin.SetMode(cfg.Server.Mode)
 	r := gin.New()
 	r.Use(logger.GinLogger(), logger.GinRecovery())

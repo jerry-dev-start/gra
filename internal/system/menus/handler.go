@@ -1,12 +1,19 @@
-package user
+package menus
 
 import (
+	"gra/pkg/validate"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 
 	"gra/pkg/response"
 )
+
+// 登录校验规则
+var createMenuRules = validate.Rules{
+	"Name": {validate.Required("菜单名称不能为空")},
+	"Path": {validate.Required("菜单路径不能为空")},
+}
 
 type Handler struct {
 	svc *Service
@@ -19,11 +26,15 @@ func NewHandler(svc *Service) *Handler {
 func (h *Handler) Create(c *gin.Context) {
 	var req CreateReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Fail(c, 400, "参数错误: "+err.Error())
+		response.FailMsg(c, "参数错误: "+err.Error())
+		return
+	}
+	if err := validate.Check(req, createMenuRules); err != nil {
+		response.FailMsg(c, "参数错误: "+err.Error())
 		return
 	}
 	if err := h.svc.Create(&req); err != nil {
-		response.Fail(c, 500, err.Error())
+		response.FailMsg(c, err.Error())
 		return
 	}
 	response.OKMsg(c, "创建成功")
@@ -35,33 +46,12 @@ func (h *Handler) GetByID(c *gin.Context) {
 		response.Fail(c, 400, "无效ID")
 		return
 	}
-	u, err := h.svc.GetByID(id)
+	m, err := h.svc.GetByID(id)
 	if err != nil {
-		response.Fail(c, 404, "用户不存在")
+		response.Fail(c, 404, "菜单不存在")
 		return
 	}
-	response.OK(c, u)
-}
-
-// GetInfo 通过Token获取用户信息
-func (h *Handler) GetInfo(c *gin.Context) {
-	userId, exists := c.Get("user_id")
-	if !exists {
-		response.FailMsg(c, "解析Token未获取到UserId")
-		return
-	}
-	var req UserInfoRes
-	userInfo, err := h.svc.GetByID(userId.(int64))
-	if err != nil {
-		response.FailMsg(c, "获取用户信息失败")
-		return
-	}
-	req.UserInfo = UserInfoResponse{
-		ID:       userInfo.ID,
-		Nickname: userInfo.Nickname,
-		Avatar:   userInfo.Avatar,
-	}
-	response.OK(c, req)
+	response.OK(c, m)
 }
 
 func (h *Handler) Update(c *gin.Context) {
@@ -95,30 +85,23 @@ func (h *Handler) Delete(c *gin.Context) {
 	response.OKMsg(c, "删除成功")
 }
 
-func (h *Handler) List(c *gin.Context) {
-	var req PageReq
-	if err := c.ShouldBindQuery(&req); err != nil {
-		response.Fail(c, 400, "参数错误: "+err.Error())
-		return
-	}
-	users, total, err := h.svc.List(&req)
+func (h *Handler) ListTree(c *gin.Context) {
+	tree, err := h.svc.ListTree()
 	if err != nil {
 		response.Fail(c, 500, err.Error())
 		return
 	}
-	response.OKPage(c, users, total, req.Page, req.Size)
+	response.OK(c, tree)
 }
 
 // RegisterRoutes 注册需认证路由
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
-	users := r.Group("/users")
+	m := r.Group("/menus")
 	{
-		users.POST("", h.Create)
-		users.GET("", h.List)
-		users.GET("/:id", h.GetByID)
-		users.PUT("/:id", h.Update)
-		users.DELETE("/:id", h.Delete)
-
-		users.GET("/profile", h.GetInfo)
+		m.POST("", h.Create)
+		m.GET("/tree", h.ListTree)
+		m.GET("/:id", h.GetByID)
+		m.PUT("/:id", h.Update)
+		m.DELETE("/:id", h.Delete)
 	}
 }
