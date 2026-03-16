@@ -40,9 +40,10 @@ func main() {
 	sysHandlers, sysSvc := system.Init(db)
 	bizHandlers := business.Init(db, sysSvc)
 
-	// 6. 启动 Gin
+	// 6. 启动 Gin（用 zap 替代默认日志）
 	gin.SetMode(cfg.Server.Mode)
-	r := gin.Default()
+	r := gin.New()
+	r.Use(logger.GinLogger(), logger.GinRecovery())
 	router.Setup(r, sysHandlers, bizHandlers)
 
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)
