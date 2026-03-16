@@ -1,0 +1,22 @@
+server:
+  port: 8888
+  mode: debug  # debug / release / test
+
+database:
+  driver: mysql
+  host: 123.207.197.234
+  port: 3306
+  username: gin-react_admin
+  password: "Tr4i7yNccYnXC2HC"
+  dbname: gin-react_admin
+  charset: utf8mb4
+  max_idle_conns: 10
+  max_open_conns: 100
+
+jwt:
+  secret: "your-secret-key"
+  expire: 7200  # seconds
+
+log:
+  level: info
+  format: console  # console / json
