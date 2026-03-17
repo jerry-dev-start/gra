@@ -66,7 +66,7 @@ type CreateReq struct {
 }
 
 type UpdateReq struct {
-	ParentID   *int64   `json:"parentId"`
+	ParentID   *int64   `json:"parentId,string"`
 	Name       string   `json:"name" binding:"omitempty,max=64"`
 	Type       MenuType `json:"type"`
 	Path       string   `json:"path"`
