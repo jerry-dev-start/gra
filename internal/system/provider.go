@@ -1,6 +1,8 @@
 package system
 
 import (
+	"gra/internal/system/role"
+
 	"gorm.io/gorm"
 
 	"gra/internal/system/auth"
@@ -13,6 +15,7 @@ type Handlers struct {
 	Auth *auth.Handler
 	User *user.Handler
 	Menu *menus.Handler
+	Role *role.Handler
 }
 
 // Services 系统域对外暴露的 Service 集合
@@ -50,11 +53,13 @@ func Init(db *gorm.DB) (*Handlers, *Services) {
 
 	// menus 模块
 	menuHandler := menus.Init(db)
+	roleHandler := role.Init(db)
 
 	handlers := &Handlers{
 		Auth: authHandler,
 		User: userHandler,
 		Menu: menuHandler,
+		Role: roleHandler,
 	}
 	services := &Services{
 		User: userSvc,

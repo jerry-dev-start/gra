@@ -28,3 +28,5 @@ config/config.local.yaml
 
 # Binary output
 /bin/
+
+/build/
