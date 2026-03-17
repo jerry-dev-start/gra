@@ -5,7 +5,6 @@ import "gra/internal/public"
 // SysRole 角色信息表
 type SysRole struct {
 	public.BaseModel
-	Id          int64  `gorm:"column:id;primaryKey;autoIncrement;comment:主键ID" json:"id"`
 	RoleName    string `gorm:"column:role_name;type:varchar(50);not null;comment:角色名称" json:"roleName"`
 	RoleCode    string `gorm:"column:role_code;type:varchar(50);unique;not null;comment:角色编码" json:"roleCode"`
 	Description string `gorm:"column:description;type:varchar(255);comment:描述" json:"description"`

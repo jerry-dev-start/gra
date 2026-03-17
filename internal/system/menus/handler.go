@@ -93,6 +93,25 @@ func (h *Handler) ListTree(c *gin.Context) {
 	}
 	response.OK(c, tree)
 }
+func (h *Handler) UserMenuTree(c *gin.Context) {
+	val, exists := c.Get("user_id")
+	if !exists {
+		response.Fail(c, 401, "用户未登录")
+		return
+	}
+	userID, ok := val.(int64)
+	if !ok {
+		response.Fail(c, 401, "用户信息异常")
+		return
+	}
+
+	result, err := h.svc.UserMenuTree(userID)
+	if err != nil {
+		response.FailMsg(c, "获取用户菜单失败")
+		return
+	}
+	response.OK(c, result)
+}
 
 // RegisterRoutes 注册需认证路由
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
@@ -100,6 +119,7 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	{
 		m.POST("", h.Create)
 		m.GET("/tree", h.ListTree)
+		m.GET("/user/tree", h.UserMenuTree)
 		m.GET("/:id", h.GetByID)
 		m.PUT("/:id", h.Update)
 		m.DELETE("/:id", h.Delete)

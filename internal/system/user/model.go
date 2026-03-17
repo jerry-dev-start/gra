@@ -2,21 +2,24 @@ package user
 
 import (
 	"gra/internal/public"
+	"gra/internal/system/role"
 	"time"
 )
 
 // User 用户模型
 type User struct {
 	public.BaseModel
-	Username      string    `json:"username" gorm:"size:64;uniqueIndex;not null"`
-	Password      string    `json:"-" gorm:"size:128;not null"`
-	Nickname      string    `json:"nickname" gorm:"size:64"`
-	Avatar        string    `json:"avatar" gorm:"size:255"`
-	Email         string    `json:"email" gorm:"size:128"`
-	Phone         string    `json:"phoneNumber" gorm:"size:20"`
-	Status        int8      `json:"status" gorm:"default:1;comment:1-启用 0-禁用"`
-	RoleID        int64     `json:"role_id,string" gorm:"index"`
-	LastLoginDate time.Time `json:"lastLoginDate" gorm:"comment:最后一次登录日期"`
+	Username string `json:"username" gorm:"size:64;uniqueIndex;not null"`
+	Password string `json:"-" gorm:"size:128;not null"`
+	Nickname string `json:"nickname" gorm:"size:64"`
+	Avatar   string `json:"avatar" gorm:"size:255"`
+	Email    string `json:"email" gorm:"size:128"`
+	Phone    string `json:"phoneNumber" gorm:"size:20"`
+	Status   int8   `json:"status" gorm:"default:1;comment:1-启用 0-禁用"`
+	RoleID   int64  `json:"role_id,string" gorm:"index"`
+	//注意：这里的 foreignKey 指的是 User 里的字段名，References 指的是 Role 里的字段名
+	Roles         []role.SysRole `json:"roles" gorm:"many2many:sys_role_user;foreignKey:ID;joinForeignKey:UserId;References:ID;joinReferences:RoleId"`
+	LastLoginDate *time.Time     `json:"lastLoginDate" gorm:"comment:最后一次登录日期"`
 }
 
 func (User) TableName() string { return "users" }
@@ -24,20 +27,20 @@ func (User) TableName() string { return "users" }
 // DTO
 
 type CreateReq struct {
-	Username string `json:"username" binding:"required,min=3,max=64"`
-	Password string `json:"password" binding:"required,min=6"`
-	Nickname string `json:"nickname"`
-	Email    string `json:"email" binding:"omitempty,email"`
-	Phone    string `json:"phone"`
-	RoleID   int64  `json:"role_id,string"`
+	Username string               `json:"username" binding:"required,min=3,max=64"`
+	Password string               `json:"password" binding:"required,min=6"`
+	Nickname string               `json:"nickname"`
+	Email    string               `json:"email" binding:"omitempty,email"`
+	Phone    string               `json:"phone"`
+	RoleIds  []public.StringInt64 `json:"roleIds"`
 }
 
 type UpdateReq struct {
-	Nickname string `json:"nickname"`
-	Email    string `json:"email" binding:"omitempty,email"`
-	Phone    string `json:"phone"`
-	Status   *int8  `json:"status"`
-	RoleID   int64  `json:"role_id,string"`
+	Nickname string               `json:"nickname"`
+	Email    string               `json:"email" binding:"omitempty,email"`
+	Phone    string               `json:"phone"`
+	Status   *int8                `json:"status"`
+	RoleIds  []public.StringInt64 `json:"roleIds"`
 }
 
 type PageReq struct {
@@ -58,4 +61,16 @@ type UserInfoResponse struct {
 	ID       int64  `json:"id,string"`
 	Nickname string `json:"nickname"`
 	Avatar   string `json:"avatar"`
+}
+
+type UserDetail struct {
+	public.BaseModel
+	Username string               `json:"username"`
+	Password string               `json:"-"`
+	Nickname string               `json:"nickname"`
+	Avatar   string               `json:"avatar"`
+	Email    string               `json:"email"`
+	Phone    string               `json:"phoneNumber"`
+	Status   int8                 `json:"status"`
+	RoleIds  []public.StringInt64 `json:"roleIds"`
 }

@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+	"gra/internal/public"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -25,13 +26,12 @@ func (s *Service) Create(req *CreateReq) error {
 		Nickname: req.Nickname,
 		Email:    req.Email,
 		Phone:    req.Phone,
-		RoleID:   req.RoleID,
 		Status:   1,
 	}
-	return s.repo.Create(u)
+	return s.repo.Create(u, public.ToStringInt64Slice(req.RoleIds))
 }
 
-func (s *Service) GetByID(id int64) (*User, error) {
+func (s *Service) GetByID(id int64) (*UserDetail, error) {
 	return s.repo.GetByID(id)
 }
 
@@ -49,13 +49,11 @@ func (s *Service) Update(id int64, req *UpdateReq) error {
 	if req.Status != nil {
 		updates["status"] = *req.Status
 	}
-	if req.RoleID != 0 {
-		updates["role_id"] = req.RoleID
-	}
+
 	if len(updates) == 0 {
 		return nil
 	}
-	return s.repo.Update(id, updates)
+	return s.repo.Update(id, updates, public.ToStringInt64Slice(req.RoleIds))
 }
 
 func (s *Service) Delete(id int64) error {

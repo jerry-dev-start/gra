@@ -1,6 +1,9 @@
 package user
 
 import (
+	"gra/internal/public"
+	"gra/internal/system/model"
+
 	"gorm.io/gorm"
 )
 
@@ -12,14 +15,48 @@ func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{db: db}
 }
 
-func (r *Repository) Create(u *User) error {
-	return r.db.Create(u).Error
+func (r *Repository) Create(u *User, roleIds []int64) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(u).Error; err != nil {
+			return err
+		}
+		if len(roleIds) == 0 {
+			return nil
+		}
+		roleUser := make([]model.SysRoleUser, 0, len(roleIds))
+		for _, roleId := range roleIds {
+			roleUser = append(roleUser, model.SysRoleUser{
+				RoleId: roleId,
+				UserId: u.ID,
+			})
+		}
+		return tx.Create(&roleUser).Error
+	})
 }
 
-func (r *Repository) GetByID(id int64) (*User, error) {
+func (r *Repository) GetByID(id int64) (*UserDetail, error) {
 	var u User
-	err := r.db.First(&u, id).Error
-	return &u, err
+	err := r.db.Preload("Roles").First(&u, id).Error
+	if err != nil {
+		return nil, err
+	}
+	roleIds := make([]public.StringInt64, 0, len(u.Roles))
+	for _, role := range u.Roles {
+		roleIds = append(roleIds, public.StringInt64(role.ID))
+	}
+	userRes := UserDetail{
+		BaseModel: public.BaseModel{
+			ID: u.ID,
+		},
+		Username: u.Username,
+		Nickname: u.Nickname,
+		Avatar:   u.Avatar,
+		Email:    u.Email,
+		Phone:    u.Phone,
+		Status:   u.Status,
+		RoleIds:  roleIds,
+	}
+	return &userRes, nil
 }
 
 func (r *Repository) GetByUsername(username string) (*User, error) {
@@ -28,8 +65,29 @@ func (r *Repository) GetByUsername(username string) (*User, error) {
 	return &u, err
 }
 
-func (r *Repository) Update(id int64, updates map[string]interface{}) error {
-	return r.db.Model(&User{}).Where("id = ?", id).Updates(updates).Error
+func (r *Repository) Update(id int64, updates map[string]interface{}, roleIds []int64) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&User{}).Where("id = ?", id).Updates(updates).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Where("user_id = ?", id).Delete(&model.SysRoleUser{}).Error; err != nil {
+			return err
+		}
+
+		if len(roleIds) == 0 {
+			return nil
+		}
+
+		roleUser := make([]model.SysRoleUser, 0, len(roleIds))
+		for _, roleId := range roleIds {
+			roleUser = append(roleUser, model.SysRoleUser{
+				RoleId: roleId,
+				UserId: id,
+			})
+		}
+		return tx.Create(&roleUser).Error
+	})
 }
 
 func (r *Repository) Delete(id int64) error {

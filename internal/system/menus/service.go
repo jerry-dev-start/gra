@@ -94,20 +94,38 @@ func (s *Service) ListTree() ([]*MenuTree, error) {
 	return buildTree(list, 0), nil
 }
 
-// buildTree 递归构建菜单树
-func buildTree(list []Menus, parentID int64) []*MenuTree {
-	var tree []*MenuTree
+func (s *Service) UserMenuTree(userID int64) ([]*MenuTree, error) {
+	menuList, err := s.repo.GetMenusByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+	if len(menuList) == 0 {
+		return []*MenuTree{}, nil
+	}
+	return buildTree(menuList, 0), nil
+}
+
+// buildTree 使用 map 索引构建菜单树，时间复杂度 O(n)
+func buildTree(list []Menus, rootParentID int64) []*MenuTree {
+	nodeMap := make(map[int64]*MenuTree, len(list))
 	for i := range list {
-		if list[i].ParentID == parentID {
-			node := &MenuTree{
-				Menus:    list[i],
-				Children: buildTree(list, list[i].ID),
-			}
-			if node.Children == nil {
-				node.Children = []*MenuTree{}
-			}
-			tree = append(tree, node)
+		nodeMap[list[i].ID] = &MenuTree{
+			Menus:    list[i],
+			Children: []*MenuTree{},
 		}
 	}
-	return tree
+
+	var roots []*MenuTree
+	for i := range list {
+		node := nodeMap[list[i].ID]
+		if list[i].ParentID == rootParentID {
+			roots = append(roots, node)
+		} else if parent, ok := nodeMap[list[i].ParentID]; ok {
+			parent.Children = append(parent.Children, node)
+		}
+	}
+	if roots == nil {
+		roots = []*MenuTree{}
+	}
+	return roots
 }

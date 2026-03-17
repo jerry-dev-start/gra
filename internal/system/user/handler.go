@@ -1,6 +1,7 @@
 package user
 
 import (
+	"gra/pkg/validate"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -22,6 +23,15 @@ func (h *Handler) Create(c *gin.Context) {
 		response.Fail(c, 400, "参数错误: "+err.Error())
 		return
 	}
+	err := validate.Check(req, validate.Rules{
+		"Username": {validate.Required("用户名不能为空")},
+		"Password": {validate.Required("密码不能为空")},
+		"Nickname": {validate.Required("昵称不能为空")},
+	})
+	if err != nil {
+		response.FailMsg(c, err.Error())
+		return
+	}
 	if err := h.svc.Create(&req); err != nil {
 		response.Fail(c, 500, err.Error())
 		return
@@ -32,12 +42,12 @@ func (h *Handler) Create(c *gin.Context) {
 func (h *Handler) GetByID(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		response.Fail(c, 400, "无效ID")
+		response.FailMsg(c, "无效ID")
 		return
 	}
 	u, err := h.svc.GetByID(id)
 	if err != nil {
-		response.Fail(c, 404, "用户不存在")
+		response.FailMsg(c, "用户不存在")
 		return
 	}
 	response.OK(c, u)
@@ -67,16 +77,16 @@ func (h *Handler) GetInfo(c *gin.Context) {
 func (h *Handler) Update(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		response.Fail(c, 400, "无效ID")
+		response.FailMsg(c, "无效ID")
 		return
 	}
 	var req UpdateReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Fail(c, 400, "参数错误: "+err.Error())
+		response.FailMsg(c, "参数错误: "+err.Error())
 		return
 	}
 	if err := h.svc.Update(id, &req); err != nil {
-		response.Fail(c, 500, err.Error())
+		response.FailMsg(c, err.Error())
 		return
 	}
 	response.OKMsg(c, "更新成功")
