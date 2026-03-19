@@ -5,6 +5,8 @@ RUN apk add --no-cache git
 
 WORKDIR /app
 
+ENV GOPROXY=https://goproxy.cn,direct
+
 COPY go.mod go.sum ./
 RUN go mod download
 
