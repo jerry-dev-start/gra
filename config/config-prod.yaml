@@ -1,0 +1,25 @@
+server:
+  port: 8888
+  mode: release
+
+database:
+  driver: mysql
+  host: ${DB_HOST}
+  port: 3306
+  username: ${DB_USER}
+  password: "${DB_PASSWORD}"
+  dbname: ${DB_NAME}
+  charset: utf8mb4
+  max_idle_conns: 10
+  max_open_conns: 100
+
+jwt:
+  secret: "${JWT_SECRET}"
+  expire: 7200
+
+log:
+  level: info
+  format: json
+
+snowflake:
+  machine_id: 1

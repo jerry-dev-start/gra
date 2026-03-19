@@ -1,0 +1,47 @@
+kind: pipeline
+type: docker
+name: gra-api
+node:
+  name: zdh
+
+steps:
+  # 第一步：构建 Go 二进制
+  - name: build
+    image: golang:1.25-alpine
+    pull: never
+    volumes:
+      - name: go-cache
+        path: /go/pkg/mod
+    commands:
+      - go mod download
+      - CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o gra ./cmd/server
+    when:
+      branch: main
+      event: push
+
+  # 第二步：构建镜像并部署
+  - name: local-deploy
+    image: docker:latest
+    volumes:
+      - name: docker-sock
+        path: /var/run/docker.sock
+    commands:
+      - docker build -t gra:latest .
+      - docker stop gra || true
+      - docker rm gra || true
+      - docker run -d --name gra --network 1panel-network -p 8888:8888 gra:latest
+    when:
+      branch: main
+      event: push
+
+volumes:
+  - name: go-cache
+    host:
+      path: /opt/tools/go/mod-cache
+  - name: docker-sock
+    host:
+      path: /var/run/docker.sock
+
+trigger:
+  branch: main
+  event: push
