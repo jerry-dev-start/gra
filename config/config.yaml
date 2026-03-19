@@ -4,7 +4,7 @@ server:
 
 database:
   driver: mysql
-  host: 123.207.197.234
+  host: 145.63.23.65
   port: 3306
   username: gin-react_admin
   password: "Tr4i7yNccYnXC2HC"

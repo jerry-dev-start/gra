@@ -4,17 +4,17 @@ server:
 
 database:
   driver: mysql
-  host: ${DB_HOST}
+  host: 1Panel-mysql-1DJG
   port: 3306
-  username: ${DB_USER}
-  password: "${DB_PASSWORD}"
-  dbname: ${DB_NAME}
+  username: gin-react_admin
+  password: "Tr4i7yNccYnXC2HC"
+  dbname: gin-react_admin
   charset: utf8mb4
   max_idle_conns: 10
   max_open_conns: 100
 
 jwt:
-  secret: "${JWT_SECRET}"
+  secret: "SIZtvT0ckI9WCj488ZuiCYd/VH4WOiDDyK08qjrfE7s="
   expire: 7200
 
 log:
