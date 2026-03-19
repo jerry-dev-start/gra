@@ -7,8 +7,7 @@ node:
 steps:
   # 第一步：构建 Go 二进制
   - name: build
-    image: golang:1.24-alpine
-    pull: never
+    image: golang:1.25-alpine
     volumes:
       - name: go-cache
         path: /go/pkg/mod
