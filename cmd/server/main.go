@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	// 1. 加载配置
+	// 1. 加载配置通过vIp
 	cfg, err := config.Load("config/config.yaml")
 	if err != nil {
 		log.Fatalf("load config: %v", err)
