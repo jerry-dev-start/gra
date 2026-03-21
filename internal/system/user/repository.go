@@ -55,6 +55,7 @@ func (r *Repository) GetByID(id int64) (*UserDetail, error) {
 		Phone:    u.Phone,
 		Status:   u.Status,
 		RoleIds:  roleIds,
+		DeptId:   u.DeptId,
 	}
 	return &userRes, nil
 }
@@ -94,11 +95,25 @@ func (r *Repository) Delete(id int64) error {
 	return r.db.Delete(&User{}, id).Error
 }
 
-func (r *Repository) List(offset, limit int) ([]User, int64, error) {
+func (r *Repository) List(offset, limit int, page *DeptQueryReq) ([]User, int64, error) {
 	var users []User
 	var total int64
 
 	db := r.db.Model(&User{})
+
+	if page.DeptId != 0 {
+		db = db.Where("dept_id = ? OR dept_id IN (SELECT id FROM sys_dept WHERE FIND_IN_SET(?, ancestors))",
+			page.DeptId, page.DeptId)
+	}
+
+	if page.UserName != "" {
+		db = db.Where("username LIKE ?", "%"+page.UserName+"%")
+	}
+
+	if page.Phone != "" {
+		db = db.Where("phone = ?", page.Phone)
+	}
+
 	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}

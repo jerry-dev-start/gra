@@ -106,7 +106,7 @@ func (h *Handler) Delete(c *gin.Context) {
 }
 
 func (h *Handler) List(c *gin.Context) {
-	var req PageReq
+	var req DeptQueryReq
 	if err := c.ShouldBindQuery(&req); err != nil {
 		response.Fail(c, 400, "参数错误: "+err.Error())
 		return

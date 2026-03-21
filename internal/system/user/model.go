@@ -17,6 +17,7 @@ type User struct {
 	Phone    string `json:"phoneNumber" gorm:"size:20"`
 	Status   int8   `json:"status" gorm:"default:1;comment:1-启用 0-禁用"`
 	RoleID   int64  `json:"role_id,string" gorm:"index"`
+	DeptId   int64  `json:"dept_id,string" gorm:"index"`
 	//注意：这里的 foreignKey 指的是 User 里的字段名，References 指的是 Role 里的字段名
 	Roles         []role.SysRole `json:"roles" gorm:"many2many:sys_role_user;foreignKey:ID;joinForeignKey:UserId;References:ID;joinReferences:RoleId"`
 	LastLoginDate *time.Time     `json:"lastLoginDate" gorm:"comment:最后一次登录日期"`
@@ -32,14 +33,16 @@ type CreateReq struct {
 	Nickname string               `json:"nickname"`
 	Email    string               `json:"email" binding:"omitempty,email"`
 	Phone    string               `json:"phone"`
+	DeptId   int64                `json:"deptId,string" `
 	RoleIds  []public.StringInt64 `json:"roleIds"`
 }
 
 type UpdateReq struct {
 	Nickname string               `json:"nickname"`
-	Email    string               `json:"email" binding:"omitempty,email"`
-	Phone    string               `json:"phone"`
+	Email    string               `json:"email"`
+	Phone    string               `json:"phoneNumber"`
 	Status   *int8                `json:"status"`
+	DeptId   int64                `json:"deptId,string" `
 	RoleIds  []public.StringInt64 `json:"roleIds"`
 }
 
@@ -50,6 +53,14 @@ type PageReq struct {
 
 func (p *PageReq) Offset() int {
 	return (p.Page - 1) * p.Size
+}
+
+type DeptQueryReq struct {
+	DeptId   int64  `form:"deptId"`
+	UserName string `form:"username"`
+	Phone    string `form:"phoneNumber"`
+	// 嵌套分页结构体
+	PageReq
 }
 
 // 获取用户信息返回的结构体
@@ -72,5 +83,6 @@ type UserDetail struct {
 	Email    string               `json:"email"`
 	Phone    string               `json:"phoneNumber"`
 	Status   int8                 `json:"status"`
+	DeptId   int64                `json:"deptId,string"`
 	RoleIds  []public.StringInt64 `json:"roleIds"`
 }

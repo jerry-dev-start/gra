@@ -27,6 +27,7 @@ func (s *Service) Create(req *CreateReq) error {
 		Email:    req.Email,
 		Phone:    req.Phone,
 		Status:   1,
+		DeptId:   req.DeptId,
 	}
 	return s.repo.Create(u, public.ToStringInt64Slice(req.RoleIds))
 }
@@ -50,6 +51,10 @@ func (s *Service) Update(id int64, req *UpdateReq) error {
 		updates["status"] = *req.Status
 	}
 
+	if req.DeptId != 0 {
+		updates["dept_id"] = req.DeptId
+	}
+
 	if len(updates) == 0 {
 		return nil
 	}
@@ -60,6 +65,6 @@ func (s *Service) Delete(id int64) error {
 	return s.repo.Delete(id)
 }
 
-func (s *Service) List(page *PageReq) ([]User, int64, error) {
-	return s.repo.List(page.Offset(), page.Size)
+func (s *Service) List(page *DeptQueryReq) ([]User, int64, error) {
+	return s.repo.List(page.Offset(), page.Size, page)
 }
