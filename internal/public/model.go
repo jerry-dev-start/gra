@@ -7,8 +7,6 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-
-	"gra/pkg/id"
 )
 
 type PageReq struct {
@@ -26,14 +24,6 @@ type BaseModel struct {
 	CreatedAt *time.Time     `json:"created_at"`
 	UpdatedAt *time.Time     `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
-}
-
-// BeforeCreate GORM 钩子：创建前自动生成雪花ID
-func (b *BaseModel) BeforeCreate(tx *gorm.DB) error {
-	if b.ID == 0 {
-		b.ID = id.Generate()
-	}
-	return nil
 }
 
 // StringInt64 JSON 序列化为 string，反序列化兼容 string 和 number
