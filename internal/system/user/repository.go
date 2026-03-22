@@ -3,6 +3,7 @@ package user
 import (
 	"gra/internal/public"
 	"gra/internal/system/model"
+	"os/user"
 
 	"gorm.io/gorm"
 )
@@ -121,4 +122,17 @@ func (r *Repository) List(offset, limit int, page *DeptQueryReq) ([]User, int64,
 		return nil, 0, err
 	}
 	return users, total, nil
+}
+
+func (r *Repository) CheckDeptHasUsers(id int64) (bool, error) {
+	var exists bool
+	err := r.db.Model(&user.User{}).
+		Select("count(*) > 0").
+		Where("dept_id = ?", id).
+		Find(&exists).
+		Error
+	if err != nil {
+		return false, err
+	}
+	return exists, err
 }

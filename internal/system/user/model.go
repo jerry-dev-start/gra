@@ -48,7 +48,7 @@ type UpdateReq struct {
 
 type PageReq struct {
 	Page int `form:"page,default=1" binding:"min=1"`
-	Size int `form:"size,default=10" binding:"min=1,max=100"`
+	Size int `form:"pageSize,default=10" binding:"min=1,max=100"`
 }
 
 func (p *PageReq) Offset() int {

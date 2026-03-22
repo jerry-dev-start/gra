@@ -7,12 +7,16 @@ import (
 	"sort"
 )
 
+type DeptUserQuerier interface {
+	CheckDeptHasUsers(id int64) (bool, error)
+}
 type Service struct {
-	repo *Repository
+	repo  *Repository
+	userQ DeptUserQuerier
 }
 
-func NewService(repo *Repository) *Service {
-	return &Service{repo: repo}
+func NewService(repo *Repository, userQ DeptUserQuerier) *Service {
+	return &Service{repo: repo, userQ: userQ}
 }
 func (s *Service) Create(req DeptReq) error {
 	isExist, err := s.repo.CheckDeptNameExist(req.Name, req.ID)
@@ -80,6 +84,15 @@ func (s *Service) DeleteDept(id int64) error {
 	}
 	if exist {
 		return errors.New("该部门下存在子部门不能删除！")
+	}
+
+	//判断该部门下是否存在用户
+	exist, err = s.userQ.CheckDeptHasUsers(id)
+	if err != nil {
+		return err
+	}
+	if exist {
+		return errors.New("该部门下存在用户不能删除！")
 	}
 	return s.repo.DeleteDeptById(id)
 }

@@ -47,6 +47,18 @@ func (a *userAdapter) GetByUsername(username string) (auth.UserInfo, error) {
 	}, nil
 }
 
+type deptUserAdapter struct {
+	repo *user.Repository
+}
+
+func (r *deptUserAdapter) CheckDeptHasUsers(id int64) (bool, error) {
+	flag, err := r.repo.CheckDeptHasUsers(id)
+	if err != nil {
+		return false, err
+	}
+	return flag, nil
+}
+
 // Init 系统域统一初始化入口
 func Init(db *gorm.DB) (*Handlers, *Services) {
 	// user 模块
@@ -59,7 +71,9 @@ func Init(db *gorm.DB) (*Handlers, *Services) {
 	menuHandler := menus.Init(db)
 	roleHandler := role.Init(db)
 	roleMenuHandler := role_menu.Init(db)
-	deptHandler := dept.Init(db)
+	deptHandler := dept.Init(db, &deptUserAdapter{
+		repo: userRepo,
+	})
 
 	handlers := &Handlers{
 		Auth:     authHandler,
