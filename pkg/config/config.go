@@ -12,6 +12,7 @@ type Config struct {
 	JWT       JWTConfig       `mapstructure:"jwt"`
 	Log       LogConfig       `mapstructure:"log"`
 	Snowflake SnowflakeConfig `mapstructure:"snowflake"`
+	Redis     RedisConfig     `mapstructure:"redis"`
 }
 
 type ServerConfig struct {
@@ -39,6 +40,13 @@ type JWTConfig struct {
 type LogConfig struct {
 	Level  string `mapstructure:"level"`
 	Format string `mapstructure:"format"`
+}
+
+type RedisConfig struct {
+	Addr     string `mapstructure:"addr"`
+	Password string `mapstructure:"password"`
+	DB       int    `mapstructure:"db"`
+	PoolSize int    `mapstructure:"pool_size"`
 }
 
 type SnowflakeConfig struct {

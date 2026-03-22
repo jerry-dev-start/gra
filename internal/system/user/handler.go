@@ -1,6 +1,8 @@
 package user
 
 import (
+	"gra/global"
+	"gra/internal/middleware"
 	"gra/pkg/validate"
 	"strconv"
 
@@ -123,7 +125,7 @@ func (h *Handler) List(c *gin.Context) {
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	users := r.Group("/users")
 	{
-		users.POST("", h.Create)
+		users.POST("", middleware.IdempotencyMiddleware(global.Rdb), h.Create)
 		users.GET("", h.List)
 		users.GET("/:id", h.GetByID)
 		users.PUT("/:id", h.Update)

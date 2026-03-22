@@ -16,7 +16,11 @@ database:
 jwt:
   secret: "SIZtvT0ckI9WCj488ZuiCYd/VH4WOiDDyK08qjrfE7s="
   expire: 7200
-
+redis:
+  addr: "1Panel-redis-Yqvz:6379"
+  password: "redis_8Q68AT"
+  db: 9
+  pool_size: 10
 log:
   level: info
   format: json

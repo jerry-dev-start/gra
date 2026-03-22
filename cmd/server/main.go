@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"gra/global"
+	"gra/pkg/redis"
 	"log"
-
-	"github.com/gin-gonic/gin"
 
 	"gra/internal/business"
 	"gra/internal/router"
@@ -15,6 +15,8 @@ import (
 	"gra/pkg/database"
 	"gra/pkg/id"
 	"gra/pkg/logger"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -38,6 +40,17 @@ func main() {
 		log.Fatalf("init database: %v", err)
 	}
 
+	//初始化 Redis
+	global.Rdb, err = redis.Init(&cfg.Redis)
+	if err != nil {
+		panic(fmt.Sprintf("Redis 连接失败: %v", err))
+	}
+	defer func() {
+		if err := global.Rdb.Close(); err != nil {
+			// 打印日志即可，无需 panic
+			log.Printf("Redis 释放资源时报错: %v", err)
+		}
+	}()
 	// 5. 自动迁移
 	if err := db.AutoMigrate(&user.User{}, &menus.Menus{}); err != nil {
 		log.Fatalf("auto migrate: %v", err)
