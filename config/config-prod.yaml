@@ -12,7 +12,9 @@ database:
   charset: utf8mb4
   max_idle_conns: 10
   max_open_conns: 100
-
+file-upload:
+  type: local
+  dir: './files'
 jwt:
   secret: "SIZtvT0ckI9WCj488ZuiCYd/VH4WOiDDyK08qjrfE7s="
   expire: 7200

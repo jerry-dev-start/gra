@@ -7,12 +7,18 @@ import (
 )
 
 type Config struct {
-	Server    ServerConfig    `mapstructure:"server"`
-	Database  DatabaseConfig  `mapstructure:"database"`
-	JWT       JWTConfig       `mapstructure:"jwt"`
-	Log       LogConfig       `mapstructure:"log"`
-	Snowflake SnowflakeConfig `mapstructure:"snowflake"`
-	Redis     RedisConfig     `mapstructure:"redis"`
+	Server           ServerConfig     `mapstructure:"server"`
+	Database         DatabaseConfig   `mapstructure:"database"`
+	JWT              JWTConfig        `mapstructure:"jwt"`
+	Log              LogConfig        `mapstructure:"log"`
+	Snowflake        SnowflakeConfig  `mapstructure:"snowflake"`
+	Redis            RedisConfig      `mapstructure:"redis"`
+	FileUploadConfig FileUploadConfig `mapstructure:"file-upload"`
+}
+
+type FileUploadConfig struct {
+	Type string `mapstructure:"type"`
+	Dir  string `mapstructure:"dir"`
 }
 
 type ServerConfig struct {

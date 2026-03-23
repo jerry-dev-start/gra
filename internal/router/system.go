@@ -14,4 +14,5 @@ func registerSystem(auth *gin.RouterGroup, h *system.Handlers) {
 	h.Role.RegisterRoutes(auth)
 	h.RoleMenu.RegisterRoutes(auth)
 	h.Dept.RegisterRoutes(auth)
+	h.File.RegisterRoutes(auth)
 }

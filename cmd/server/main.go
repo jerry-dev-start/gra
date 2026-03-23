@@ -25,7 +25,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("load config: %v", err)
 	}
-
+	global.Conf = cfg
 	// 2. 初始化日志
 	logger.Init(&cfg.Log)
 

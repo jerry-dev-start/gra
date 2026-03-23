@@ -2,6 +2,7 @@ package system
 
 import (
 	"gra/internal/system/dept"
+	"gra/internal/system/files"
 	"gra/internal/system/role"
 	"gra/internal/system/role_menu"
 
@@ -20,6 +21,7 @@ type Handlers struct {
 	Role     *role.Handler
 	RoleMenu *role_menu.Handler
 	Dept     *dept.Handler
+	File     *files.Handler
 }
 
 // Services 系统域对外暴露的 Service 集合

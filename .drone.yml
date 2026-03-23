@@ -29,7 +29,7 @@ steps:
       - docker build -t gra:latest .
       - docker stop gra || true
       - docker rm gra || true
-      - docker run -d --name gra --network 1panel-network -p 8889:8888 gra:latest
+      - docker run -d --name gra --network 1panel-network -v /opt/apis/go/gin-react-admin:/app/files -p 8889:8888 gra:latest
     when:
       branch: main
       event: push

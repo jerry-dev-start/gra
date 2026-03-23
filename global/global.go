@@ -1,7 +1,12 @@
 package global
 
-import "github.com/redis/go-redis/v9"
+import (
+	"gra/pkg/config"
+
+	"github.com/redis/go-redis/v9"
+)
 
 var (
-	Rdb *redis.Client
+	Rdb  *redis.Client
+	Conf *config.Config
 )
