@@ -4,9 +4,12 @@ import (
 	"gra/global"
 	"gra/pkg/response"
 	"gra/pkg/validate"
+	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -121,6 +124,108 @@ func (h *Handler) ChunkUpload(c *gin.Context) {
 	response.OKMsg(c, "保存分片完成")
 }
 
+// ChunkMerge 合并分片的请求
+func (h *Handler) ChunkMerge(c *gin.Context) {
+	var mergeReq ChunkMergeReq
+	if err := c.ShouldBindJSON(&mergeReq); err != nil {
+		response.FailMsg(c, err.Error())
+		return
+	}
+	if err := validate.Check(mergeReq, validate.Rules{
+		"Hash":        {validate.Required("Hash不能为空")},
+		"TotalChunks": {validate.Required("TotalChunks不能为空")},
+	}); err != nil {
+		response.FailMsg(c, err.Error())
+		return
+	}
+	//拼接Chunk全路径
+	chunkPath := filepath.Join(global.Conf.FileUploadConfig.Dir, "chunk", mergeReq.Hash)
+	exists := isDirExists(chunkPath)
+	if !exists {
+		response.FailMsg(c, "分片目录不存在")
+		return
+	}
+	// 1. 读取目录下所有文件
+	entries, err := os.ReadDir(chunkPath)
+	if err != nil {
+		response.FailMsg(c, err.Error())
+		return
+	}
+
+	var chunks []string
+	for _, entry := range entries {
+		// 排除文件夹和正在写入的临时文件
+		if !entry.IsDir() && !strings.HasSuffix(entry.Name(), ".part") {
+			chunks = append(chunks, entry.Name())
+		}
+	}
+
+	// 2. 关键步骤：按数字顺序排序 (避免 1, 10, 2 的情况)
+	sort.Slice(chunks, func(i, j int) bool {
+		a, _ := strconv.Atoi(chunks[i])
+		b, _ := strconv.Atoi(chunks[j])
+		return a < b
+	})
+
+	// 3. 创建目标文件
+	extension := filepath.Ext(mergeReq.FileName) // 获取 .jpg, .png 等
+	newFileName := uuid.New().String() + extension
+	dateDir := time.Now().Format("2006/01/02")
+	uploadDir := filepath.Join("uploads", dateDir)
+	uploadAllPath := filepath.Join(global.Conf.FileUploadConfig.Dir, "uploads", dateDir, newFileName)
+	targetFile, err := os.Create(uploadAllPath)
+	if err != nil {
+		response.FailMsg(c, err.Error())
+		return
+	}
+	defer targetFile.Close()
+
+	// 4. 逐个读取分片并写入目标文件
+	for _, chunkName := range chunks {
+		chunkPath := filepath.Join(chunkPath, chunkName)
+
+		// 开启分片文件
+		chunkFile, err := os.Open(chunkPath)
+		if err != nil {
+			response.FailMsg(c, err.Error())
+			return
+		}
+
+		// 使用 io.Copy 实现流式拷贝，节省内存
+		if _, err := io.Copy(targetFile, chunkFile); err != nil {
+			chunkFile.Close()
+			return
+		}
+
+		chunkFile.Close() // 读完立即关闭
+	}
+
+	// 5. 合并成功后，清理分片目录
+	os.RemoveAll(chunkPath)
+
+	response.OK(c, &FileUploadRes{
+		FileUrl:        filepath.Join(uploadDir, newFileName),
+		FileName:       mergeReq.FileName,
+		UploadedChunks: nil,
+		Uploaded:       false,
+	})
+}
+
+// IsDirExists 判断路径是否存在且是一个文件夹
+func isDirExists(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		// 如果错误是“不存在”，直接返回 false
+		if os.IsNotExist(err) {
+			return false
+		}
+		// 其他错误（如权限不足）也视为不可用，返回 false
+		return false
+	}
+	// 核心步骤：判断查找到的路径是否为目录
+	return info.IsDir()
+}
+
 // RegisterRoutes 注册需认证的路由
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	fileGroup := r.Group("/files")
@@ -128,5 +233,6 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 		fileGroup.POST("/upload", h.Upload)
 		fileGroup.GET("/chunk/check", h.ChunkCheck)
 		fileGroup.POST("/chunk/upload", h.ChunkUpload)
+		fileGroup.POST("/chunk/merge", h.ChunkMerge)
 	}
 }
