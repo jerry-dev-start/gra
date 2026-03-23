@@ -12,8 +12,9 @@ import (
 )
 
 type Claims struct {
-	UserID   int64  `json:"user_id"`
-	Username string `json:"username"`
+	UserID    int64  `json:"user_id"`
+	Username  string `json:"username"`
+	TokenType string `json:"token_type"` // "access" or "refresh"
 	jwt.RegisteredClaims
 }
 
@@ -33,6 +34,13 @@ func JWTAuth() gin.HandlerFunc {
 		})
 		if err != nil || !t.Valid {
 			response.Error(c, http.StatusUnauthorized, "Token无效")
+			c.Abort()
+			return
+		}
+
+		// 仅允许 access token 访问业务接口
+		if claims.TokenType != "access" {
+			response.Error(c, http.StatusUnauthorized, "Token类型错误")
 			c.Abort()
 			return
 		}

@@ -8,6 +8,21 @@ type LoginReq struct {
 
 // LoginResp 登录响应
 type LoginResp struct {
-	Token    string `json:"token"`
-	ExpireAt int64  `json:"expire_at"`
+	Token        string `json:"token"`
+	ExpireAt     int64  `json:"expire_at"`
+	RefreshToken string `json:"refresh_token"`
+	RefreshExpAt int64  `json:"refresh_exp_at"`
+}
+
+// RefreshReq 刷新Token请求
+type RefreshReq struct {
+	RefreshToken string `json:"refresh_token" label:"刷新Token"`
+}
+
+// RefreshResp 刷新Token响应
+type RefreshResp struct {
+	Token        string `json:"token"`
+	ExpireAt     int64  `json:"expire_at"`
+	RefreshToken string `json:"refresh_token"`
+	RefreshExpAt int64  `json:"refresh_exp_at"`
 }

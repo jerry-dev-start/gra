@@ -16,6 +16,7 @@ database:
 jwt:
   secret: "SIZtvT0ckI9WCj488ZuiCYd/VH4WOiDDyK08qjrfE7s="
   expire: 7200
+  refresh_expire: 604800  # refresh token 过期时间（秒）7天
 redis:
   addr: "1Panel-redis-Yqvz:6379"
   password: "redis_8Q68AT"
