@@ -76,6 +76,7 @@ func Init(db *gorm.DB) (*Handlers, *Services) {
 	deptHandler := dept.Init(db, &deptUserAdapter{
 		repo: userRepo,
 	})
+	fileHandler := files.Init(db)
 
 	handlers := &Handlers{
 		Auth:     authHandler,
@@ -84,6 +85,7 @@ func Init(db *gorm.DB) (*Handlers, *Services) {
 		Role:     roleHandler,
 		RoleMenu: roleMenuHandler,
 		Dept:     deptHandler,
+		File:     fileHandler,
 	}
 	services := &Services{
 		User: userSvc,
